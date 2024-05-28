@@ -29,7 +29,7 @@ def get_question_links(test_name, count):
             if match:
                 question_number = match.group(1)
                 links.append((question_number, full_url))
-                print("Current page: " + str(page) + " - #" + question_number)
+                print("Page[" + str(page) + "] - #" + question_number)
                 found = True
                 if len(links) >= count:
                     break
