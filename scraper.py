@@ -29,6 +29,7 @@ def get_question_links(test_name, count):
             if match:
                 question_number = match.group(1)
                 links.append((question_number, full_url))
+                print("Current page: " + str(page) + " - #" + question_number)
                 found = True
                 if len(links) >= count:
                     break
@@ -39,7 +40,6 @@ def get_question_links(test_name, count):
             sys.exit(1)
 
         page += 1
-        print("Current page: " + str(page)) #Print the current page scraped
     return links
 
 def create_html(links, test_name):
@@ -64,6 +64,7 @@ def create_html(links, test_name):
     html_content = template.render(links=links, test_name=test_name)
     with open('questions.html', 'w') as f:
         f.write(html_content)
+    print("Done!")
 
 def main(count, test_name):
     links = get_question_links(test_name, count)
