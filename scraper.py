@@ -9,37 +9,55 @@ import time
 BASE_URL_TEMPLATE = "https://www.examtopics.com/discussions/cisco/{page}/"
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 
-def get_question_links(test_name, count):
+def get_question_links(test_name, count, keywords=None, debug=False):
     links = []
     page = 1
     question_prefix = f"Exam {test_name} topic"
     start_time = time.time()
-    found = False
+
     while len(links) < count:
         url = BASE_URL_TEMPLATE.format(page=page)
         response = requests.get(url, headers=HEADERS)
+
         if response.status_code != 200:
             print(f"Error: Unable to fetch page {page}. Status code: {response.status_code}")
             break
         
         soup = BeautifulSoup(response.content, 'html.parser')
+
         for link in soup.find_all('a', href=True, string=re.compile(question_prefix)):
             full_url = "https://www.examtopics.com" + link['href']
             match = re.search(r'question (\d+) discussion', link.text)
             if match:
                 question_number = match.group(1)
-                links.append((question_number, full_url))
-                print("Page[" + str(page) + "] - #" + question_number)
-                found = True
+                if keywords:
+                    question_page = requests.get(full_url, headers=HEADERS)
+                    question_soup = BeautifulSoup(question_page.content, 'html.parser')
+                    question_text = question_soup.get_text()
+                    found_keyword = False
+                    for keyword in keywords:
+                        if keyword.lower() in question_text.lower():
+                            links.append((question_number, full_url, keyword))
+                            found_keyword = True
+                            if debug:
+                                print(f"Found question {question_number} with keyword '{keyword}'")
+                            break
+                    if not found_keyword:
+                        continue
+                else:
+                    links.append((question_number, full_url, "None"))
+                    if debug:
+                        print(f"Found question {question_number}")
                 if len(links) >= count:
                     break
-        
-        if not found and (time.time() - start_time) > 60:  # Timeout after 60 seconds if no questions found
-            print(f"Error: No questions found '{test_name}'.")
+
+        if len(links) < count and (time.time() - start_time) > 600:  # Timeout after 10 minutes seconds if no questions found
+            print(f"Error: Timeout threshold of 10 minutes exceeded for '{test_name}'.")
             create_html(links, test_name)
             sys.exit(1)
-
         page += 1
+        if debug:
+            print("Page[" + str(page) + "]")
     return links
 
 def create_html(links, test_name):
@@ -54,8 +72,10 @@ def create_html(links, test_name):
     <body>
         <h1>{{ test_name }} Questions</h1>
         <ul>
-        {% for number, link in links %}
-            <li><a href="{{ link }}">Question #{{ number }}</a></li>
+        {% for number, link, keyword in links %}
+            <li>
+                <a href="{{ link }}">Question #{{ number }}</a> (Keyword: {{ keyword }})
+            </li>
         {% endfor %}
         </ul>
     </body>
@@ -66,19 +86,23 @@ def create_html(links, test_name):
         f.write(html_content)
     print("Done!")
 
-def main(count, test_name):
-    links = get_question_links(test_name, count)
+def main(count, test_name, keywords=None, debug=False):
+    if keywords:
+        keywords = keywords.split(',')
+    links = get_question_links(test_name, count, keywords, debug)
     create_html(links, test_name)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scrape questions and create an HTML file.')
     parser.add_argument('-c', '--count', type=int, default=10, help='Number of questions to scrape')
     parser.add_argument('-t', '--test', type=str, required=True, help='Test name to scrape questions for')
+    parser.add_argument('-k', '--keywords', type=str, help='Keywords to filter questions (comma-separated)')
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
     
     args = parser.parse_args()
 
     try:
-        main(args.count, args.test)
+        main(args.count, args.test, args.keywords, args.debug)
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
