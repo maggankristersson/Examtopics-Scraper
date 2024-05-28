@@ -14,6 +14,7 @@ def get_question_links(test_name, count):
     page = 1
     question_prefix = f"Exam {test_name} topic"
     start_time = time.time()
+    found = False
     while len(links) < count:
         url = BASE_URL_TEMPLATE.format(page=page)
         response = requests.get(url, headers=HEADERS)
@@ -22,7 +23,6 @@ def get_question_links(test_name, count):
             break
         
         soup = BeautifulSoup(response.content, 'html.parser')
-        found = False
         for link in soup.find_all('a', href=True, string=re.compile(question_prefix)):
             full_url = "https://www.examtopics.com" + link['href']
             match = re.search(r'question (\d+) discussion', link.text)
@@ -33,11 +33,13 @@ def get_question_links(test_name, count):
                 if len(links) >= count:
                     break
         
-        if not found and (time.time() - start_time) > 10:  # Timeout after 10 seconds if no questions found
-            print(f"Error: No questions found for test '{test_name}'.")
+        if not found and (time.time() - start_time) > 50:  # Timeout after 10 seconds if no questions found
+            print(f"Error: No questions found '{test_name}'.")
+            create_html(links, test_name)
             sys.exit(1)
-        
+
         page += 1
+        print("Current page: " + str(page)) #Print the current page scraped
     return links
 
 def create_html(links, test_name):
