@@ -34,7 +34,7 @@ def get_question_links(test_name, count):
                 if len(links) >= count:
                     break
         
-        if not found and (time.time() - start_time) > 50:  # Timeout after 10 seconds if no questions found
+        if not found and (time.time() - start_time) > 60:  # Timeout after 60 seconds if no questions found
             print(f"Error: No questions found '{test_name}'.")
             create_html(links, test_name)
             sys.exit(1)
@@ -55,7 +55,7 @@ def create_html(links, test_name):
         <h1>{{ test_name }} Questions</h1>
         <ul>
         {% for number, link in links %}
-            <li><a href="{{ link }}">Question {{ number }}</a></li>
+            <li><a href="{{ link }}">Question #{{ number }}</a></li>
         {% endfor %}
         </ul>
     </body>
