@@ -140,7 +140,7 @@ if __name__ == "__main__":
         ''',
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument('-c', '--count', type=str, default='10', help='Number of questions to scrape (or "max" for all)')
+    parser.add_argument('-c', '--count', type=str, default='max', help='Number of questions to scrape (or "max" for all (which is default))')
     parser.add_argument('-t', '--test', type=str, required=True, help='Test name to scrape questions for')
     parser.add_argument('-k', '--keywords', type=str, help='Keywords to filter questions (comma-separated)')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
