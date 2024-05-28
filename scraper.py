@@ -53,21 +53,18 @@ def get_question_links(test_name, count, keywords=None, debug=False):
                         if keyword.lower() in question_text.lower():
                             links.append((question_number, full_url, keyword))
                             found_keyword = True
-                            if debug:
-                                print(Fore.GREEN + f"Found question {question_number} with keyword '{keyword}'")
+                            print(Fore.GREEN + f"Found question {question_number} with keyword '{keyword}'")
                             break
                     if not found_keyword:
                         continue
                 else:
                     links.append((question_number, full_url, "None"))
-                    if debug:
-                        print(Fore.GREEN + f"Found question {question_number}")
+                    print(Fore.GREEN + f"Found question {question_number}")
                 if count != sys.maxsize and len(links) >= count:
                     break
         else:
             page += 1
-            if debug:
-                print(Fore.CYAN + f"Page[{page}]")
+            print(Fore.CYAN + f"Page[{page}]")
             continue
         break
 
