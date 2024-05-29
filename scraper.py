@@ -18,7 +18,6 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 MAX_PAGE = 660
 stop_scraping = False
 
-
 def get_question_links(test_name, count, keywords=None, debug=False):
     global stop_scraping
     links = []
@@ -31,30 +30,47 @@ def get_question_links(test_name, count, keywords=None, debug=False):
             break
 
         url = BASE_URL_TEMPLATE.format(page=page)
+
+        debug_time_page_main_start = time.time()
+
         response = requests.get(url, headers=HEADERS)
+        print(Fore.CYAN + f"Page[{page}]...")
+        
+        debug_time_page_main = time.time() - debug_time_page_main_start
+        if debug:
+            print("DEBUG: Main page response time " + str(round(debug_time_page_main, 2)) + "ms")
 
         if response.status_code != 200:
             print(Fore.RED + f"Error: Unable to fetch page {page}. Status code: {response.status_code}")
             break
         
         soup = BeautifulSoup(response.content, 'html.parser')
-
+        
         for link in soup.find_all('a', href=True, string=re.compile(question_prefix)):
+            
+            debug_start_time = time.time()
+            
             full_url = "https://www.examtopics.com" + link['href']
             match = re.search(r'question (\d+) discussion', link.text)
             if match:
                 question_number = match.group(1)
                 if keywords:
+                    debug_time_keyword_start = time.time()
                     question_page = requests.get(full_url, headers=HEADERS)
                     question_soup = BeautifulSoup(question_page.content, 'html.parser')
                     question_text = question_soup.get_text()
                     found_keyword = False
                     for keyword in keywords:
+                        if debug:
+                            print("DEBUG: [Looking for keyword '" + keyword + "'] in " + question_number)
                         if keyword.lower() in question_text.lower():
                             links.append((question_number, full_url, keyword))
                             found_keyword = True
                             print(Fore.GREEN + f"Found question {question_number} with keyword '{keyword}'")
                             break
+                    debug_time_keyword = time.time() - debug_time_keyword_start
+                    if debug:
+                        print("DEBUG: Keyword response time " + str(round(debug_time_keyword, 2)) + "ms")
                     if not found_keyword:
                         continue
                 else:
@@ -64,7 +80,6 @@ def get_question_links(test_name, count, keywords=None, debug=False):
                     break
         else:
             page += 1
-            print(Fore.CYAN + f"Page[{page}]")
             continue
         break
 
