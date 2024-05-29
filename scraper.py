@@ -58,6 +58,12 @@ def get_question_links(test_name, count, keywords=None, debug=False):
                     debug_time_keyword_start = time.time()
                     question_page = requests.get(full_url, headers=HEADERS)
                     question_soup = BeautifulSoup(question_page.content, 'html.parser')
+
+                        # Check for "General Server Error"
+                    error_message_div = question_soup.find('div', class_='error-page')
+                    if error_message_div and "General Server Error" in error_message_div.get_text():
+                        print(Fore.RED + f"YOUVE BEEN BLOCKED")
+
                     question_text = question_soup.get_text()
                     found_keyword = False
                     for keyword in keywords:
