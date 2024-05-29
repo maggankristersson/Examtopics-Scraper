@@ -35,7 +35,7 @@ def get_question_links(test_name, count, keywords=None, debug=False):
 
         response = requests.get(url, headers=HEADERS)
         print(Fore.CYAN + f"Page[{page}]...")
-        
+
         debug_time_page_main = time.time() - debug_time_page_main_start
         if debug:
             print("DEBUG: Main page response time " + str(round(debug_time_page_main, 2)) + "ms")
@@ -132,6 +132,7 @@ def main(count, test_name, keywords=None, debug=False):
     def listen_for_quit():
         global stop_scraping
         keyboard.wait('q')
+        print(Fore.RED + "Stops scraping due to Q being pressed")
         stop_scraping = True
 
     quit_listener = threading.Thread(target=listen_for_quit, daemon=True)
