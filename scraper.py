@@ -18,13 +18,13 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 MAX_PAGE = 660
 stop_scraping = False
 
+
 def get_question_links(test_name, count, keywords=None, debug=False):
     global stop_scraping
     links = []
     page = 1
     question_prefix = f"Exam {test_name} topic"
     start_time = time.time()
-
     while page <= MAX_PAGE and (count == sys.maxsize or len(links) < count):
         if stop_scraping:
             print(Fore.RED + "Stopping scraping...")
@@ -76,6 +76,7 @@ def get_question_links(test_name, count, keywords=None, debug=False):
     return links
 
 def create_html(links, test_name):
+    number_of_questions = len(links)
     template = Template('''
     <!DOCTYPE html>
     <html lang="en">
@@ -86,6 +87,7 @@ def create_html(links, test_name):
     </head>
     <body>
         <h1>{{ test_name }} Questions</h1>
+        <h2>{{ number_of_questions }} questions:</h2>
         <ul>
         {% for number, link, keyword in links %}
             <li>
@@ -96,7 +98,7 @@ def create_html(links, test_name):
     </body>
     </html>
     ''')
-    html_content = template.render(links=links, test_name=test_name)
+    html_content = template.render(links=links, test_name=test_name, number_of_questions=number_of_questions)
     with open('questions.html', 'w') as f:
         f.write(html_content)
     print(Fore.GREEN + "Done!")
