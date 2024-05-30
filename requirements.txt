@@ -5,3 +5,5 @@ argparse
 colorama
 keyboard
 markupsafe==2.0.1
+httpx
+fake_useragent

@@ -127,7 +127,7 @@ def create_html(links, test_name):
     </html>
     ''')
     html_content = template.render(links=links, test_name=test_name, number_of_questions=number_of_questions)
-    with open('questions4.html', 'w') as f:
+    with open('questions.html', 'w') as f:
         f.write(html_content)
     print(Fore.GREEN + "Done!")
 
