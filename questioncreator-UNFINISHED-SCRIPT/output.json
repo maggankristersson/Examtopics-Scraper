@@ -1,0 +1,30 @@
+[
+{
+    "question_number": "965",
+    "question_text": "DRAG DROP - Drag and drop the characteristics from the left onto the corresponding switching architectures on the right.",
+    "answers": [],
+    "images": [
+        "output-images/965_1.png",
+        "output-images/965_2.png"
+    ],
+    "alt_images": {},
+    "suggested_answer": "output-images/965_2.png",
+    "voted_answer": null
+},
+{
+    "question_number": "966",
+    "question_text": "Refer to the exhibit. What is output by this code?",
+    "answers": [
+        "A. -1 -2 -3 -4",
+        "B. 8 7 6 5",
+        "C. 4 5 6 7",
+        "D. -4 -5 -6 -7"
+    ],
+    "images": [
+        "output-images/966_1.png"
+    ],
+    "alt_images": {},
+    "suggested_answer": "B",
+    "voted_answer": "B"
+}
+]
